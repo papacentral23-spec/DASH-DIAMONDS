@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DASH DIAMOND</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
+body{background:#050a18;color:#fff;min-height:100vh}
+.top{padding:16px;display:flex;gap:10px}
+.tt{color:#00b2ff;font-weight:900;font-size:22px}
+.wrap{padding:0 14px 90px 14px;max-width:420px;margin:0 auto}
+.card{background:#0a1428;border:1px solid #00aaff22;border-radius:16px;padding:14px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.box{background:#0a1428;border:1px solid #00aaff22;border-radius:16px;padding:16px;text-align:center}
+.box-num{color:#00c8ff;font-size:32px;font-weight:900}
+.mine-btn{width:100%;background:linear-gradient(90deg,#0090ff,#00c8ff);border:none;border-radius:14px;padding:16px;font-size:20px;font-weight:900;color:#fff}
+.mine-active{background:#002a1a;border:1px dashed #00ff88;border-radius:14px;padding:12px;text-align:center;margin-top:10px}
+.progress{height:8px;background:#ffffff15;border-radius:10px;overflow:hidden;margin:8px 0}
+.fill{height:100%;background:#00aaff}
+.input{width:100%;padding:12px;border-radius:10px;border:1px solid #1e3a5a;background:#020a18;color:#fff;margin-bottom:8px}
+.btn{width:100%;padding:12px;border-radius:10px;border:none;font-weight:900;margin-bottom:8px}
+.bl{background:#00aaff;color:#fff}.gd{background:gold;color:#000}.gn{background:#00ff88;color:#000}
+.tab{display:none}.tab.active{display:block}
+.nav{position:fixed;bottom:0;left:0;right:0;background:#080f1f;border-top:1px solid #ffffff11;display:flex;justify-content:space-around;padding:8px 0}
+.nav-item{text-align:center;color:#5a7aa0;font-size:9px;padding:6px 14px;border-radius:10px}
+.nav-item.active{background:#0080ff;color:#fff}
+.s{font-size:10px;opacity:.6;text-align:center;margin-top:6px}
+.badge{display:inline-block;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:900}
+.badge-lock{background:#001a2e;border:1px solid #ffaa0055;color:#ffaa00}
+.badge-live{background:#001a2e;border:1px solid #00aaff55;color:#00aaff}
+.badge-pending{background:#332200;color:#ffcc00}
+.badge-approved{background:#002a1a;color:#00ff88}
+</style>
+</head>
+<body>
+<div class="top"><div>💎</div><div class="tt">DASH DIAMOND</div></div>
+<div class="wrap">
+<div id="tabDash" class="tab active">
+<div class="card">
+<div style="font-size:10px;color:#5a7aa0;">GLOBAL MACHINE STATUS</div>
+<div style="display:flex;justify-content:space-between;margin-top:6px;"><b id="cycleText">Cycle 1 • Locked 🔒</b><span id="lockBadge" class="badge badge-lock">LOCKED 3Y</span></div>
+<div style="font-size:10px;margin-top:8px;color:#7a9ab8;">Machine Unlock: <b id="unlockDate" style="color:#ffaa00;">-</b></div>
+<div style="font-size:10px;margin-top:2px;color:#7a9ab8;">Remaining: <b id="remain" style="color:#00ff88;">-</b></div>
+<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:10px;"><span>Machine</span><b id="machineStatus" style="color:#00ff88;">ONLINE LIVE</b></div>
+<div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;"><span>Mined</span><b id="t" style="color:#00ff88;">0.000000 DASH</b></div>
+</div>
+<div class="grid"><div class="box"><div class="box-num">10M</div><div style="font-size:10px;color:#7a9ab8;">Global Pool</div></div><div class="box"><div class="box-num">10M</div><div style="font-size:10px;color:#7a9ab8;">Mathosia Wallet</div><div style="font-size:9px;color:#00aaff;margin-top:4px;">👆 Fingerprint Locked</div></div></div>
+<div id="loginArea"><input id="u" class="input" placeholder="Username (type papacentral for owner)"><input id="p" class="input" type="password" placeholder="Secure Code"><button class="mine-btn" onclick="login()">⛏️ MINING</button><p id="hint" style="font-size:10px;color:gold;text-align:center;margin-top:6px;"></p></div>
+<div id="ownerArea" style="display:none;"><div style="background:gold;color:#000;padding:8px;border-radius:10px;font-weight:900;text-align:center;font-size:12px;margin-bottom:8px;">👑 OWNER PANEL - papacentral 👑</div><button class="btn gd" onclick="saveF()">1. SAVE FINGERPRINT 👆</button><button class="btn gn" onclick="checkF()">2. LOGIN WITH FINGER 👆</button><button class="btn" style="background:#ffffff11;color:#00aaff;" onclick="useB()">3. LOGIN WITH BACKUP CODE 🔑</button><p id="msg" class="s" style="color:gold;"></p></div>
+<div id="c" class="mine-active" style="display:none;"><b style="color:#00ff88;">MINING ACTIVE</b><div class="progress"><div id="q" class="fill" style="width:0%"></div></div><div id="l" style="font-size:22px;font-weight:900;">0.000000</div><div style="display:flex;justify-content:space-between;font-size:10px;margin-top:6px;"><span>Hash</span><b id="h">0 H/s</b></div><div style="display:flex;justify-content:space-between;font-size:10px;"><span>User</span><b id="currentUser">-</b></div><button class="btn" style="background:#ff3b3b22;color:#ff6b6b;margin-top:8px;" onclick="stopM()">STOP</button></div>
+</div>
+<div id="tabWallet" class="tab">
+<div class="card"><b>👛 My Wallet</b><div id="walletBal" style="font-size:28px;font-weight:900;color:#00ff88;margin-top:10px;">0.000000 DASH</div><div id="walletUser" style="font-size:10px;color:#5a7aa0;margin-top:4px;">User: -</div></div>
+<div class="card">
+<b>💸 Withdraw DASH</b>
+<div style="font-size:10px;color:#7a9ab8;margin-top:8px;">Minimum withdraw: 1.0 DASH — Machine approves after 3 Years lock or Owner manual approve</div>
+<input id="dashAddr" class="input" style="margin-top:10px;" placeholder="Enter your DASH address (starts with X...)">
+<button class="btn bl" onclick="requestWithdraw()">Request Withdraw</button>
+<div id="withdrawMsg" class="s" style="color:gold;"></div>
+</div>
+<div class="card"><b>📜 My Withdraw History</b><div id="withdrawList" style="margin-top:10px;font-size:11px;"></div></div>
+<div id="ownerWithdrawCard" class="card" style="display:none;border:1px solid gold;"><b style="color:gold;">👑 Owner - All Withdraw Requests</b><div id="allWithdraws" style="margin-top:10px;font-size:11px;"></div><button class="btn gd" style="margin-top:8px;" onclick="approveAll()">Approve All Pending (Owner)</button><button class="btn" style="background:#ffffff11;color:#ffaa00;" onclick="simulate3Years()">[TEST] Simulate 3 Years Passed - Auto Approve</button></div>
+</div>
+<div id="tabStats" class="tab"><div class="card"><b>📊 Stats</b><div style="margin-top:12px;font-size:12px;">Total Mined: <b id="g" style="color:#00ff88;">0.000000</b></div><div style="margin-top:8px;font-size:10px;color:#5a7aa0;">Global Lock: <span id="statsRemain">-</span></div></div></div>
+<div id="tabSettings" class="tab"><div class="card"><b>⚙️ Settings</b><div style="background:#0005;padding:10px;border-radius:10px;margin-top:10px;font-size:11px;"><div style="display:flex;justify-content:space-between;"><span>Fingerprint</span><b id="fpStatus" style="color:gold;">Not Saved</b></div><button class="btn gd" onclick="saveF()">Save Fingerprint</button><button class="btn gn" onclick="checkF()">Test Fingerprint</button></div><div style="background:#0005;padding:10px;border-radius:10px;margin-top:10px;font-size:11px;">Backup Code: MATHOSIA2024<br><button class="btn" style="background:#ffffff11;color:#aaa;margin-top:8px;" onclick="useB()">Use Backup Code</button></div><button class="btn" style="background:#ff3b3b22;color:#fff;margin-top:14px;" onclick="logout()">Logout / Clear All</button></div></div>
+</div>
+<div class="nav">
+<div id="navDash" class="nav-item active" onclick="switchTab('tabDash')">🏠<br>Dashboard</div>
+<div id="navWallet" class="nav-item" onclick="switchTab('tabWallet')">👛<br>Wallet</div>
+<div id="navStats" class="nav-item" onclick="switchTab('tabStats')">📊<br>Stats</div>
+<div id="navSettings" class="nav-item" onclick="switchTab('tabSettings')">⚙️<br>Settings</div>
+</div>
+<script>
+function g(i){return document.getElementById(i);}
+var ADMIN="papacentral";var BACK="MATHOSIA2024";var tm=null;var bal=0;var pr=0;
+var THREE_Y=3*365*24*60*60*1000;
+var uEl=g("u");var loginArea=g("loginArea");var ownerArea=g("ownerArea");
+var cEl=g("c");var tEl=g("t");var lEl=g("l");var qEl=g("q");
+var hEl=g("h");var gEl=g("g");var mEl=g("msg");var hint=g("hint");
+var walletBal=g("walletBal");var fpStatus=g("fpStatus");var curEl=g("currentUser");var machEl=g("machineStatus");
+var unlockEl=g("unlockDate");var remainEl=g("remain");var cycleEl=g("cycleText");var lockBadge=g("lockBadge");var statsRemain=g("statsRemain");
+function initGlobalLock(){var start=localStorage.getItem("dash_lock_start");if(!start){start=Date.now();localStorage.setItem("dash_lock_start",start);}var end=parseInt(start)+THREE_Y;var d=new Date(end);unlockEl.innerText=d.toDateString();updateLockTimer();setInterval(updateLockTimer,1000);}
+function updateLockTimer(){var start=parseInt(localStorage.getItem("dash_lock_start")||Date.now());var end=start+THREE_Y;var now=Date.now();var diff=end-now;if(diff<=0){remainEl.innerText="UNLOCKED - APPROVED";statsRemain.innerText="UNLOCKED";cycleEl.innerText="Cycle 1 • Approved ✅";lockBadge.innerText="APPROVED";lockBadge.className="badge badge-approved";machEl.innerText="APPROVED - WITHDRAWS OPEN";autoApproveAll();return;}var days=Math.floor(diff/(1000*60*60*24));var years=Math.floor(days/365);var rDays=days%365;var hrs=Math.floor((diff%(1000*60*60*24))/(1000*60*60));remainEl.innerText=years+"y "+rDays+"d "+hrs+"h left";statsRemain.innerText=years+"y "+rDays+"d left";}
+function b64ToBuf(b64){var bin=atob(b64);var arr=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++){arr[i]=bin.charCodeAt(i);}return arr;}
+function bufToB64(buf){var arr=new Uint8Array(buf);var str="";for(var i=0;i<arr.length;i++){str+=String.fromCharCode(arr[i]);}return btoa(str);}
+function switchTab(tabId){var tabs=document.querySelectorAll(".tab");for(var i=0;i<tabs.length;i++){tabs[i].classList.remove("active");}g(tabId).classList.add("active");var navs=document.querySelectorAll(".nav-item");for(var j=0;j<navs.length;j++){navs[j].classList.remove("active");}if(tabId==="tabDash")g("navDash").classList.add("active");if(tabId==="tabWallet"){g("navWallet").classList.add("active");updateWallet();renderWithdraws();}if(tabId==="tabStats")g("navStats").classList.add("active");if(tabId==="tabSettings"){g("navSettings").classList.add("active");updateSettings();}}
+function updateWallet(){var name=localStorage.getItem("dash_user")||"Miner";g("walletUser").innerText="User: "+name;var sv=localStorage.getItem("dash_bal_"+name)||"0";var v=parseFloat(sv);walletBal.innerText=v.toFixed(6)+" DASH";if(name===ADMIN){g("ownerWithdrawCard").style.display="block";}else{g("ownerWithdrawCard").style.display="none";}}
+function updateSettings(){var has=localStorage.getItem("dash_cred");if(has){fpStatus.innerText="Saved ✓";fpStatus.style.color="#00ff88";}else{fpStatus.innerText="Not Saved";fpStatus.style.color="gold";}}
+uEl.addEventListener("input",onType);
+function onType(){var n=uEl.value.toLowerCase().trim();if(n===ADMIN){loginArea.style.display="none";ownerArea.style.display="block";hint.innerText="";}else if(n.length>0){loginArea.style.display="block";ownerArea.style.display="none";if(n.length>=3){hint.innerText="Type full 'papacentral' for owner panel";}else{hint.innerText="";}}else{loginArea.style.display="block";ownerArea.style.display="none";hint.innerText="";}updateMsg();}
+function updateMsg(){var has=localStorage.getItem("dash_cred");if(has){mEl.innerText="Fingerprint saved - Use Login With Finger or Backup";}else{mEl.innerText="No fingerprint yet - Save first or use Backup";}}
+function login(){var name=uEl.value.trim();var code=g("p").value.trim();if(name===""){alert("Enter username");return;}if(code===""){alert("Enter code");return;}localStorage.setItem("dash_user",name);start(false,name);}
+async function saveF(){if(!window.PublicKeyCredential){alert("This phone does not support fingerprint");return;}try{var ch=crypto.getRandomValues(new Uint8Array(32));var id=crypto.getRandomValues(new Uint8Array(16));var cred=await navigator.credentials.create({publicKey:{challenge:ch,rp:{name:"DASH DIAMOND"},user:{id:id,name:ADMIN,displayName:"Owner papacentral"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",requireResidentKey:false},timeout:60000}});var rawId=cred.rawId;var b64=bufToB64(rawId);localStorage.setItem("dash_cred",b64);mEl.innerText="Saved OK";updateSettings();alert("Fingerprint Saved OK");}catch(e){alert("Save failed: "+e.message+" - Use Backup");}}
+async function checkF(){var saved=localStorage.getItem("dash_cred");if(!saved){alert("No fingerprint - Save first or use Backup MATHOSIA2024");return;}try{var ch=crypto.getRandomValues(new Uint8Array(32));var allowId=b64ToBuf(saved);await navigator.credentials.get({publicKey:{challenge:ch,timeout:60000,userVerification:"required",allowCredentials:[{id:allowId,type:"public-key"}]}});localStorage.setItem("dash_user",ADMIN);machEl.innerText="OWNER ONLINE";alert("Verified - Welcome Owner");start(true,ADMIN);}catch(e){alert("No passkey found: "+e.message+" - Use BACKUP CODE");}}
+function useB(){var code=prompt("Enter Backup Code:");if(!code)return;if(code.trim().toUpperCase()===BACK){localStorage.setItem("dash_user",ADMIN);machEl.innerText="OWNER ONLINE (BACKUP)";alert("Backup OK - Welcome Owner");start(true,ADMIN);}else{alert("Wrong - MATHOSIA2024");}}
+function start(isAdmin,name){cEl.style.display="block";loginArea.style.display="none";ownerArea.style.display="none";curEl.innerText=name;var sv=localStorage.getItem("dash_bal_"+name);if(!sv)sv="0";bal=parseFloat(sv);if(tm!==null)clearInterval(tm);var sp=isAdmin?0.000015:0.000008;tm=setInterval(function(){bal+=sp;pr+=0.6;if(pr>100)pr=0;lEl.innerText=bal.toFixed(6);qEl.style.width=pr+"%";tEl.innerText=bal.toFixed(6)+" DASH";var hr=Math.random()*40+90;if(isAdmin)hr+=100;hEl.innerText=hr.toFixed(1)+" H/s";localStorage.setItem("dash_bal_"+name,bal);var gv=localStorage.getItem("dash_global")||"0";var gn=parseFloat(gv)+sp;localStorage.setItem("dash_global",gn);if(gEl)gEl.innerText=gn.toFixed(6)+" DASH";walletBal.innerText=bal.toFixed(6)+" DASH";},800);}
+function stopM(){clearInterval(tm);cEl.style.display="none";onType();alert("Paused - Saved");}
+function logout(){if(confirm("Clear all?")){localStorage.clear();location.reload();}}
+function requestWithdraw(){var name=localStorage.getItem("dash_user");if(!name){alert("Login first");return;}var balStr=localStorage.getItem("dash_bal_"+name)||"0";var b=parseFloat(balStr);if(b<1.0){alert("Minimum 1.0 DASH needed - You have "+b.toFixed(6));return;}var addr=g("dashAddr").value.trim();if(addr.length<10){alert("Enter valid DASH address");return;}var list=JSON.parse(localStorage.getItem("dash_withdraws")||"[]");var req={id:Date.now(),user:name,amount:b,address:addr,time:new Date().toLocaleString(),status:"PENDING",unlockAfter:parseInt(localStorage.getItem("dash_lock_start"))+THREE_Y};list.push(req);localStorage.setItem("dash_withdraws",JSON.stringify(list));localStorage.setItem("dash_bal_"+name,"0");g("withdrawMsg").innerText="Request Submitted - PENDING - Machine will approve after 3 years lock";g("dashAddr").value="";updateWallet();renderWithdraws();}
+function renderWithdraws(){var name=localStorage.getItem("dash_user")||"";var list=JSON.parse(localStorage.getItem("dash_withdraws")||"[]");var my=list.filter(function(x){return x.user===name;});var html="";if(my.length===0)html="<div style='color:#5a7aa0;'>No withdraws yet</div>";else{for(var i=my.length-1;i>=0;i--){var r=my[i];var badge=r.status==="PENDING"?"<span class='badge badge-pending'>PENDING 3Y LOCK</span>":"<span class='badge badge-approved'>APPROVED BY MACHINE</span>";html+="<div style='background:#0005;padding:8px;border-radius:8px;margin-bottom:6px;'><div style='display:flex;justify-content:space-between;'><b>"+r.amount.toFixed(6)+" DASH</b>"+badge+"</div><div style='font-size:9px;color:#7a9ab8;'>"+r.address.substring(0,20)+"... | "+r.time+"</div></div>";}}g("withdrawList").innerHTML=html;var allHtml="";if(list.length===0)allHtml="<div style='color:#5a7aa0;'>No requests</div>";else{for(var j=list.length-1;j>=0;j--){var rr=list[j];var bb=rr.status==="PENDING"?"<span class='badge badge-pending'>PENDING</span>":"<span class='badge badge-approved'>APPROVED</span>";allHtml+="<div style='background:#0005;padding:8px;border-radius:8px;margin-bottom:6px;'><div style='display:flex;justify-content:space-between;'><b>"+rr.user+": "+rr.amount.toFixed(6)+"</b>"+bb+"</div><div style='font-size:9px;color:#7a9ab8;'>"+rr.address+" | "+rr.time+"</div></div>";}}g("allWithdraws").innerHTML=allHtml;}
+function autoApproveAll(){var list=JSON.parse(localStorage.getItem("dash_withdraws")||"[]");var changed=false;for(var i=0;i<list.length;i++){if(list[i].status==="PENDING"){var now=Date.now();if(now>=list[i].unlockAfter){list[i].status="APPROVED";changed=true;}}}if(changed){localStorage.setItem("dash_withdraws",JSON.stringify(list));renderWithdraws();}}
+function approveAll(){var list=JSON.parse(localStorage.getItem("dash_withdraws")||"[]");for(var i=0;i<list.length;i++){list[i].status="APPROVED";}localStorage.setItem("dash_withdraws",JSON.stringify(list));renderWithdraws();alert("Owner approved all withdraws");}
+function simulate3Years(){if(!confirm("TEST: Simulate 3 years passed? This will approve all pending withdraws"))return;var past=Date.now()-THREE_Y-1000;localStorage.setItem("dash_lock_start",past);updateLockTimer();alert("Simulated 3 Years - Now APPROVED - Check Wallet");}
+var su=localStorage.getItem("dash_user");if(su){uEl.value=su;onType();}updateMsg();updateSettings();initGlobalLock();renderWithdraws();
+</script>
+</body>
+</html>
