@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DASH MINING</title>
+<style>
+  body { background:#000; color:#fff; font-family: Arial, sans-serif; text-align:center; margin:0; padding:20px; }
+  .card { background:#111; border-radius:16px; padding:24px; max-width:400px; margin:20px auto; }
+  .label { color:#ccc; font-size:18px; }
+  .balance { color:#00ff88; font-size:42px; font-weight:bold; margin:5px 0; }
+  .timer { font-size:22px; margin:12px 0; }
+  .session { color:#ddd; font-size:16px; margin:10px 0; }
+  button { background:#00ff88; color:#000; border:none; padding:16px; width:100%; border-radius:10px; font-size:18px; font-weight:bold; cursor:pointer; }
+  button:disabled { background:#333; color:#888; }
+  .nav { margin-top:20px; }
+  .nav a { color:#00ff88; text-decoration:none; margin:0 10px; }
+  .status { margin-top:12px; color:#00ff88; font-size:14px; }
+</style>
+</head>
+<body>
+
+<h2>DASH MINING</h2>
+
+<div class="card">
+  <div class="label">Total Balance</div>
+  <div class="balance" id="totalBalance">0.000000 DASH</div>
+  <div class="timer" id="timer">12:00:00 remaining</div>
+  <div class="session">Mined this session: <span id="sessionMined">0.000000</span> DASH</div>
+  <button id="mineBtn" onclick="startMining()">START MINING</button>
+  <div class="status" id="status"></div>
+</div>
+
+<div class="nav">
+  <a href="index.html">Dashboard</a> |
+  <a href="index2.html">Wallet</a> |
+  <a href="mining.html">Mining</a>
+</div>
+
+<script>
+  // Shared storage keys - same as Dashboard
+  const BALANCE_KEY = "dash_total_balance";
+  const SESSION_KEY = "dash_session_mined";
+  const START_KEY = "dash_mining_start";
+  const DURATION = 12 * 60 * 60 * 1000; // 12 hours
+  const RATE_PER_SECOND = 0.000001; // 0.0432 DASH per 12 hours
+
+  let totalBalance = parseFloat(localStorage.getItem(BALANCE_KEY) || "0");
+  let sessionMined = parseFloat(localStorage.getItem(SESSION_KEY) || "0");
+  let miningStart = parseInt(localStorage.getItem(START_KEY) || "0");
+
+  function formatTime(ms) {
+    if (ms <= 0) return "00:00:00";
+    let s = Math.floor(ms / 1000);
+    let h = Math.floor(s / 3600);
+    let m = Math.floor((s % 3600) / 60);
+    let sec = s % 60;
+    return String(h).padStart(2,'0') + ":" + String(m).padStart(2,'0') + ":" + String(sec).padStart(2,'0');
+  }
+
+  function updateDisplay() {
+    let now = Date.now();
+    let remaining = DURATION;
+    let btn = document.getElementById("mineBtn");
+    let status = document.getElementById("status");
+
+    if (miningStart > 0) {
+      let elapsed = now - miningStart;
+      if (elapsed >= DURATION) {
+        // Session finished
+        document.getElementById("timer").textContent = "00:00:00 remaining";
+        btn.textContent = "START NEW SESSION";
+        btn.disabled = false;
+        status.textContent = "Session finished. Start a new session.";
+        localStorage.removeItem(START_KEY);
+        localStorage.setItem(SESSION_KEY, "0");
+        miningStart = 0;
+      } else {
+        remaining = DURATION - elapsed;
+        document.getElementById("timer").textContent = formatTime(remaining) + " remaining";
+        btn.textContent = "MINING... TAP TO STOP";
+        btn.disabled = false;
+        status.textContent = "Mining is active...";
+      }
+    } else {
+      document.getElementById("timer").textContent = "12:00:00 remaining";
+      btn.textContent = "START MINING";
+      status.textContent = "";
+    }
+
+    document.getElementById("totalBalance").textContent = totalBalance.toFixed(6) + " DASH";
+    document.getElementById("sessionMined").textContent = sessionMined.toFixed(6);
+  }
+
+  function startMining() {
+    if (miningStart > 0) {
+      // Stop mining
+      localStorage.removeItem(START_KEY);
+      miningStart = 0;
+      sessionMined = 0;
+      localStorage.setItem(SESSION_KEY, "0");
+      updateDisplay();
+      return;
+    }
+    // Start new session
+    miningStart = Date.now();
+    sessionMined = 0;
+    localStorage.setItem(START_KEY, String(miningStart));
+    localStorage.setItem(SESSION_KEY, "0");
+    updateDisplay();
+  }
+
+  // Add balance every second while mining
+  setInterval(function() {
+    if (miningStart > 0) {
+      totalBalance += RATE_PER_SECOND;
+      sessionMined += RATE_PER_SECOND;
+      localStorage.setItem(BALANCE_KEY, String(totalBalance));
+      localStorage.setItem(SESSION_KEY, String(sessionMined));
+    }
+    updateDisplay();
+  }, 1000);
+
+  updateDisplay();
+</script>
+
+</body>
+</html>
