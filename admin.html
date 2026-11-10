@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<style>body{margin:0;font-family:Arial;background:#0A1628;color:white;padding:12px}.top{color:#00BFFF;font-size:26px;font-weight:bold;text-align:center}.card{background:#12233F;padding:16px;border-radius:15px;margin-top:12px;border:1px solid #1E3A5F}input{width:100%;padding:12px;margin:7px 0;border-radius:10px;border:1px solid #1E3A5F;background:#0A1628;color:white;box-sizing:border-box}.btn{width:100%;padding:13px;border:none;border-radius:10px;font-weight:bold;font-size:15px;margin-top:8px;cursor:pointer}.yellow{background:#FFD700;color:black}.green{background:#00C853;color:white}.blue{background:#00BFFF;color:white}.red{background:#FF5252;color:white}.gold{color:#FFD700}.small{color:#00BFFF;font-size:13px}.big{font-size:32px;text-align:center;color:#00BFFF;font-weight:bold}.center{text-align:center}.split{display:flex;gap:10px}.split div{flex:1;background:#0A1628;padding:10px;border-radius:10px;border:1px solid #1E3A5F}</style></head><body>
+<div class="top">💎 DASH DIAMOND</div>
+
+<div class="card center"><div>TOTAL MACHINE - 20M DIAMONDS</div><div class="big">20,000,000</div><div class="small">Divided By 2 - Fair For All</div><div class="split" style="margin-top:10px"><div><b style="color:#FFD700">10M DONATIONS</b><br><span class="small">For Poor People<br>Help / Survival</span><br><b id="donLeft">10,000,000</b><br><span class="small">Left</span></div><div><b style="color:#00BFFF">10M FOR MINE</b><br><span class="small">Users Mine 24HR<br>Saves Every Day</span><br><b id="mineLeft">10,000,000</b><br><span class="small">Left</span></div></div><div style="margin-top:10px">Mined Total: <b id="poolMined" class="gold">0</b><br>Global Unlock: <b class="gold">Oct 30, 2029</b><br><span id="machineStatus" style="color:#FF5252;font-weight:bold">🔒 LOCKED - 3 YEARS - EVEN OWNER CANNOT WITHDRAW</span></div></div>
+
+<div id="authBox" class="card"><h2 class="center gold">REGISTER / LOGIN</h2>
+<input id="rName" placeholder="Full Name"><input id="rPhone" placeholder="Phone - 1 Phone = 1 Account"><input id="rPass" type="password" placeholder="Password"><input id="rWallet" placeholder="Wallet Address"><input id="rDiamonds" type="number" placeholder="Starting Diamonds - e.g 5">
+<button class="btn yellow" onclick="register()">REGISTER - AI CHECKS NO DOUBLE</button>
+<button class="btn green" onclick="login()">LOGIN</button><p id="authMsg" class="center" style="color:#FFD700"></p><p class="center small">AI: If phone already exists, BLOCKED. 1 Phone = 1 Account. Owner must APPROVE you. 3 Years Lock for EVERYONE.</p></div>
+
+<div id="dashBox" style="display:none">
+<div class="card center"><h2>Welcome <span id="uName" class="gold"></span></h2><p>Status: <b id="uStatus"></b><br>Phone: <span id="uPhone"></span><br>Wallet: <span id="uWallet"></span></p><div class="big">💎 <span id="uDiamonds">0</span></div><p>Your Diamonds - SAVED</p><p>Joined: <span id="uJoined"></span><br>Unlock / Withdraw Date: <b id="uUnlock" class="gold"></b><br>Remaining: <b id="uRemain" style="color:#00C853"></b></p><p id="withdrawMsg" class="center"></p></div>
+
+<div class="card"><h3 class="center">⛏️ MINE 24HR</h3><p class="center small">Mine every 24 hours. Diamonds SAVE. Continue mining until 3 years.</p><button class="btn yellow" onclick="mine24()">⛏️ MINE NOW - +1 DIAMOND</button><p id="mineMsg" class="center gold"></p><p class="center small">Last Mine: <span id="lastMine">Never</span></p></div>
+
+<div class="card"><h3 class="center">💰 WITHDRAW / TRANSACTION</h3><p class="center small">Withdraw ONLY after 3 YEARS. Before 3 years - LOCKED. After 3 years - Buy food, survive, digital money.</p><input id="wAmount" type="number" placeholder="Amount to Withdraw"><button class="btn green" onclick="withdraw()">WITHDRAW - AFTER 3 YEARS ONLY</button><p id="wMsg" class="center gold"></p></div>
+
+<div class="card"><h3 class="center">🔄 BUY / SELL - AFTER 3 YEARS</h3><p class="center small">Transaction begins after 3 years.</p><button class="btn blue" onclick="trade('BUY')">BUY DIAMONDS</button><button class="btn yellow" onclick="trade('SELL')">SELL DIAMONDS</button></div>
+<button class="btn red" onclick="logout()">LOGOUT</button></div>
+
+<div class="card"><h3 class="center gold">👑 OWNER WITHDRAW - ALSO LOCKED 3 YEARS</h3><p class="center small">Even Owner Cannot Withdraw Till 3 Years. Fair Rule. Global Unlock: Oct 30, 2029</p><input id="ownerPass" type="password" placeholder="Owner Password"><input id="ownerAmount" type="number" placeholder="Owner Withdraw Amount"><button class="btn yellow" onclick="ownerWithdraw()">OWNER WITHDRAW</button><p id="ownerMsg" class="center gold"></p><a href="admin.html" style="color:#00BFFF;display:block;text-align:center;margin-top:10px">Go to Owner Admin →</a></div>
+
+<script>
+const firebaseConfig={apiKey:"AIzaSyDT2742JibDhhDiHhJStSo63WRDLsfnhf4",authDomain:"dash-diamond.firebaseapp.com",databaseURL:"https://dash-diamond-default-rtdb.firebaseio.com",projectId:"dash-diamond",storageBucket:"dash-diamond.firebasestorage.app",messagingSenderId:"759296865870",appId:"1:759296865870:web:affc62e7d0227b16d5751f",measurementId:"G-W5BKCXJ318"};
+firebase.initializeApp(firebaseConfig); const db=firebase.database();
+const GLOBAL_UNLOCK=new Date('2029-10-30').getTime();
+let currentPhone=null, currentUser=null;
+function updateGlobalStatus(){let el=document.getElementById('machineStatus'); if(Date.now()>=GLOBAL_UNLOCK){el.innerText='✅ UNLOCKED - 3 YEARS DONE - TRANSACTION OPEN'; el.style.color='#00C853';} else {el.innerText='🔒 LOCKED - 3 YEARS - EVEN OWNER CANNOT WITHDRAW'; el.style.color='#FF5252';}} updateGlobalStatus();
+async function register(){
+let name=document.getElementById('rName').value.trim(), phone=document.getElementById('rPhone').value.trim(), pass=document.getElementById('rPass').value.trim(), wallet=document.getElementById('rWallet').value.trim(), dia=parseFloat(document.getElementById('rDiamonds').value||0);
+if(!name||!phone||!pass){document.getElementById('authMsg').innerText='Fill Name, Phone, Password!';return;}
+let snap=await db.ref('users/'+phone).get();
+if(snap.exists()){document.getElementById('authMsg').innerText='❌ AI BLOCKED: This phone already registered! 1 Phone = 1 Account. Login instead.';return;}
+let join=Date.now(); let unlock=new Date(join); unlock.setFullYear(unlock.getFullYear()+3);
+await db.ref('users/'+phone).set({name,phone,password:pass,wallet,diamonds:dia,joinTime:join,unlockTime:unlock.getTime(),status:'PENDING',lastMine:0,totalMined:0});
+document.getElementById('authMsg').innerText='✅ Registered! WAIT for Owner APPROVAL. Your 3 years starts NOW: '+unlock.toDateString();
+}
+async function login(){
+let phone=document.getElementById('rPhone').value.trim(), pass=document.getElementById('rPass').value.trim();
+let snap=await db.ref('users/'+phone).get();
+if(!snap.exists()){document.getElementById('authMsg').innerText='No account. Register first.';return;}
+let u=snap.val(); if(u.password!==pass){document.getElementById('authMsg').innerText='Wrong password!';return;}
+if(u.status!=='APPROVED'){document.getElementById('authMsg').innerText='⏳ WAITING APPROVAL from Owner. Please wait.';return;}
+currentPhone=phone; currentUser=u; showDash();
+}
+function showDash(){
+document.getElementById('authBox').style.display='none'; document.getElementById('dashBox').style.display='block';
+document.getElementById('uName').innerText=currentUser.name; document.getElementById('uStatus').innerText=currentUser.status; document.getElementById('uPhone').innerText=currentUser.phone; document.getElementById('uWallet').innerText=currentUser.wallet; document.getElementById('uDiamonds').innerText=currentUser.diamonds;
+let j=new Date(currentUser.joinTime); document.getElementById('uJoined').innerText=j.toDateString(); let un=new Date(currentUser.unlockTime); document.getElementById('uUnlock').innerText=un.toDateString();
+let remain=currentUser.unlockTime-Date.now(); let days=Math.ceil(remain/(1000*60*60*24)); document.getElementById('uRemain').innerText=days>0?days+' days left':'✅ UNLOCKED - TRANSACTION OPEN';
+document.getElementById('lastMine').innerText=currentUser.lastMine?new Date(currentUser.lastMine).toLocaleString():'Never';
+if(Date.now()>=currentUser.unlockTime){document.getElementById('withdrawMsg').innerText='✅ 3 YEARS DONE - You can withdraw now!';}
+else{document.getElementById('withdrawMsg').innerText='🔒 Locked until 3 years. Keep mining, diamonds are SAVING.';}
+loadPool();
+}
+async function loadPool(){let s=await db.ref('users').get(); let total=0; if(s.exists()){Object.values(s.val()).forEach(u=>total+=parseFloat(u.diamonds||0));} document.getElementById('poolMined').innerText=total; document.getElementById('mineLeft').innerText=(10000000-total).toLocaleString(); document.getElementById('donLeft').innerText=(10000000).toLocaleString();}
+async function mine24(){
+if(!currentPhone) return;
+let now=Date.now(); if(currentUser.lastMine && now-currentUser.lastMine < 24*60*60*1000){document.getElementById('mineMsg').innerText='⏳ Wait 24HR. You already mined. Come back in '+Math.ceil((24*60*60*1000-(now-currentUser.lastMine))/(1000*60*60))+' hours.';return;}
+let newDia=parseFloat(currentUser.diamonds||0)+1; await db.ref('users/'+currentPhone).update({diamonds:newDia,lastMine:now,totalMined:(currentUser.totalMined||0)+1});
+currentUser.diamonds=newDia; currentUser.lastMine=now; document.getElementById('uDiamonds').innerText=newDia; document.getElementById('mineMsg').innerText='✅ +1 Diamond SAVED! Total: '+newDia+' Keep mining!'; loadPool();
+}
+async function withdraw(){
+let amt=parseFloat(document.getElementById('wAmount').value||0);
+if(Date.now()<currentUser.unlockTime || Date.now()<GLOBAL_UNLOCK){document
